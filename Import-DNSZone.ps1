@@ -135,7 +135,7 @@ Write-Host "`nImporting DNS records..." -ForegroundColor Cyan
 $successCount = 0
 $skipCount = 0
 $errorCount = 0
-$errors = @()
+$importErrors = @()
 
 foreach ($record in $records) {
     # Skip SOA and default NS records if requested (they're auto-created)
@@ -218,13 +218,11 @@ foreach ($record in $records) {
                     -ErrorAction Stop
             }
             "SOA" {
-                # SOA records typically shouldn't be manually created, but we can try
-                Write-Verbose "Attempting to update SOA record..."
-                Set-DnsServerResourceRecordSOA -ZoneName $zoneConfig.ZoneName `
-                    -PrimaryServer $record.RecordData.PrimaryServer `
-                    -ResponsiblePerson $record.RecordData.ResponsiblePerson `
-                    -TimeToLive $ttl `
-                    -ErrorAction Stop
+                # SOA records are auto-created with the zone and cannot be added manually
+                # We'll skip them by default as they're automatically generated
+                Write-Verbose "Skipping SOA record (auto-created by zone)"
+                $skipCount++
+                continue
             }
             default {
                 Write-Warning "Unsupported record type: $($record.RecordType) for $($record.HostName)"
@@ -239,7 +237,7 @@ foreach ($record in $records) {
     catch {
         $errorCount++
         $errorMsg = "Failed to import $($record.RecordType) record '$($record.HostName)': $_"
-        $errors += $errorMsg
+        $importErrors += $errorMsg
         Write-Warning $errorMsg
     }
 }
@@ -256,8 +254,8 @@ Write-Host "Errors: $errorCount" -ForegroundColor $(if ($errorCount -gt 0) { "Re
 
 if ($errorCount -gt 0) {
     Write-Host "`nErrors encountered:" -ForegroundColor Red
-    foreach ($error in $errors) {
-        Write-Host "  - $error" -ForegroundColor Red
+    foreach ($err in $importErrors) {
+        Write-Host "  - $err" -ForegroundColor Red
     }
 }
 
