@@ -1,0 +1,35 @@
+# Connection info with credentials
+connection-info.txt
+
+# Azure CLI output
+*.log
+
+# PowerShell transcripts
+PowerShell_transcript.*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# Parameter files with secrets (if any)
+*.parameters.local.json
+*secrets*.json
+
+# VS Code settings (optional - uncomment if you don't want to commit)
+# .vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editor backup files
+*~
+*.swp
+*.swo
